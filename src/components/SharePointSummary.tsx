@@ -39,7 +39,7 @@ export function SharePointSummary({ isDetailPanelOpen, setIsDetailPanelOpen }: S
         <div className="relative rounded-2xl overflow-hidden">
           {/* Video Grid Background Image */}
           <img
-            src="/video-grid.png"
+            src={`${import.meta.env.BASE_URL}video-grid.png`}
             alt="Company highlights"
             className="w-full h-auto"
           />
@@ -138,15 +138,15 @@ export function SharePointSummary({ isDetailPanelOpen, setIsDetailPanelOpen }: S
           >
             {/* Image Grid */}
             <div className="grid grid-cols-3 gap-2 mb-6">
-              <img src="/grid-1.png" alt="" className="rounded-lg w-full h-24 object-cover" />
-              <img src="/grid-2.png" alt="" className="rounded-lg w-full h-24 object-cover" />
-              <img src="/grid-3.png" alt="" className="rounded-lg w-full h-24 object-cover" />
-              <img src="/grid-4.png" alt="" className="rounded-lg w-full h-24 object-cover" />
-              <img src="/grid-5.png" alt="" className="rounded-lg w-full h-24 object-cover" />
-              <img src="/grid-6.png" alt="" className="rounded-lg w-full h-24 object-cover" />
-              <img src="/grid-7.png" alt="" className="rounded-lg w-full h-24 object-cover" />
-              <img src="/grid-8.png" alt="" className="rounded-lg w-full h-24 object-cover" />
-              <img src="/grid-9.png" alt="" className="rounded-lg w-full h-24 object-cover" />
+              <img src={`${import.meta.env.BASE_URL}grid-1.png`} alt="" className="rounded-lg w-full h-24 object-cover" />
+              <img src={`${import.meta.env.BASE_URL}grid-2.png`} alt="" className="rounded-lg w-full h-24 object-cover" />
+              <img src={`${import.meta.env.BASE_URL}grid-3.png`} alt="" className="rounded-lg w-full h-24 object-cover" />
+              <img src={`${import.meta.env.BASE_URL}grid-4.png`} alt="" className="rounded-lg w-full h-24 object-cover" />
+              <img src={`${import.meta.env.BASE_URL}grid-5.png`} alt="" className="rounded-lg w-full h-24 object-cover" />
+              <img src={`${import.meta.env.BASE_URL}grid-6.png`} alt="" className="rounded-lg w-full h-24 object-cover" />
+              <img src={`${import.meta.env.BASE_URL}grid-7.png`} alt="" className="rounded-lg w-full h-24 object-cover" />
+              <img src={`${import.meta.env.BASE_URL}grid-8.png`} alt="" className="rounded-lg w-full h-24 object-cover" />
+              <img src={`${import.meta.env.BASE_URL}grid-9.png`} alt="" className="rounded-lg w-full h-24 object-cover" />
             </div>
 
             {/* Source Info */}
@@ -189,7 +189,7 @@ export function SharePointSummary({ isDetailPanelOpen, setIsDetailPanelOpen }: S
                     Quarterly priorities set for Company product teams
                   </h4>
                 </div>
-                <img src="/news-1.png" alt="" className="w-24 h-24 rounded-xl object-cover flex-shrink-0" />
+                <img src={`${import.meta.env.BASE_URL}news-1.png`} alt="" className="w-24 h-24 rounded-xl object-cover flex-shrink-0" />
               </div>
 
               {/* Headline 2 */}
@@ -205,7 +205,7 @@ export function SharePointSummary({ isDetailPanelOpen, setIsDetailPanelOpen }: S
                     CompanyCore Fiber v2 enters durability validation phase
                   </h4>
                 </div>
-                <img src="/news-2.png" alt="" className="w-24 h-24 rounded-xl object-cover flex-shrink-0" />
+                <img src={`${import.meta.env.BASE_URL}news-2.png`} alt="" className="w-24 h-24 rounded-xl object-cover flex-shrink-0" />
               </div>
 
               {/* Headline 3 */}
@@ -221,7 +221,7 @@ export function SharePointSummary({ isDetailPanelOpen, setIsDetailPanelOpen }: S
                     Smart-fiber durability targets rise across the industry
                   </h4>
                 </div>
-                <img src="/news-4.png" alt="" className="w-24 h-24 rounded-xl object-cover flex-shrink-0" />
+                <img src={`${import.meta.env.BASE_URL}news-4.png`} alt="" className="w-24 h-24 rounded-xl object-cover flex-shrink-0" />
               </div>
             </div>
           </div>
@@ -249,7 +249,7 @@ export function SharePointSummary({ isDetailPanelOpen, setIsDetailPanelOpen }: S
                   <div className="text-2xl font-bold">9</div>
                   <div className="text-xs text-gray-600">Mar</div>
                 </div>
-                <img src="/event-1.png" alt="Company AMA" className="w-full h-20 object-cover rounded-lg mb-2" />
+                <img src={`${import.meta.env.BASE_URL}event-1.png`} alt="Company AMA" className="w-full h-20 object-cover rounded-lg mb-2" />
                 <p className="font-semibold text-xs mb-1">Company AMA</p>
                 <p className="text-xs text-gray-600">2:00 PM</p>
                 <p className="text-xs text-gray-500">Online</p>
@@ -263,7 +263,7 @@ export function SharePointSummary({ isDetailPanelOpen, setIsDetailPanelOpen }: S
                   <div className="text-2xl font-bold">24</div>
                   <div className="text-xs text-gray-600">Mar</div>
                 </div>
-                <img src="/event-2.png" alt="Discovery Hour" className="w-full h-20 object-cover rounded-lg mb-2" />
+                <img src={`${import.meta.env.BASE_URL}event-2.png`} alt="Discovery Hour" className="w-full h-20 object-cover rounded-lg mb-2" />
                 <p className="font-semibold text-xs mb-1">Discovery Hour: Delivery...</p>
                 <p className="text-xs text-gray-600">3:00 PM</p>
                 <p className="text-xs text-gray-500">Building C</p>
@@ -277,7 +277,7 @@ export function SharePointSummary({ isDetailPanelOpen, setIsDetailPanelOpen }: S
                   <div className="text-2xl font-bold">9</div>
                   <div className="text-xs text-gray-600">Apr</div>
                 </div>
-                <img src="/event-3.png" alt="Sales event" className="w-full h-20 object-cover rounded-lg mb-2" />
+                <img src={`${import.meta.env.BASE_URL}event-3.png`} alt="Sales event" className="w-full h-20 object-cover rounded-lg mb-2" />
                 <p className="font-semibold text-xs mb-1">Sales...</p>
                 <p className="text-xs text-gray-600">9:00 AM</p>
                 <p className="text-xs text-gray-500">Online</p>
@@ -291,7 +291,7 @@ export function SharePointSummary({ isDetailPanelOpen, setIsDetailPanelOpen }: S
                   <div className="text-2xl font-bold">13</div>
                   <div className="text-xs text-gray-600">Apr</div>
                 </div>
-                <img src="/event-4.png" alt="Team happy hour" className="w-full h-20 object-cover rounded-lg mb-2" />
+                <img src={`${import.meta.env.BASE_URL}event-4.png`} alt="Team happy hour" className="w-full h-20 object-cover rounded-lg mb-2" />
                 <p className="font-semibold text-xs mb-1">Team 'happy hour'</p>
                 <p className="text-xs text-gray-600">5:00 PM</p>
                 <p className="text-xs text-gray-500">Local office</p>
@@ -305,7 +305,7 @@ export function SharePointSummary({ isDetailPanelOpen, setIsDetailPanelOpen }: S
                   <div className="text-2xl font-bold">6</div>
                   <div className="text-xs text-gray-600">May</div>
                 </div>
-                <img src="/event-5.png" alt="Cloud & AI Evolution" className="w-full h-20 object-cover rounded-lg mb-2" />
+                <img src={`${import.meta.env.BASE_URL}event-5.png`} alt="Cloud & AI Evolution" className="w-full h-20 object-cover rounded-lg mb-2" />
                 <p className="font-semibold text-xs mb-1">Cloud & AI Evolution...</p>
                 <p className="text-xs text-gray-600">1:00 PM</p>
                 <p className="text-xs text-gray-500">Conference</p>
@@ -319,7 +319,7 @@ export function SharePointSummary({ isDetailPanelOpen, setIsDetailPanelOpen }: S
                   <div className="text-2xl font-bold">20</div>
                   <div className="text-xs text-gray-600">May</div>
                 </div>
-                <img src="/event-6.png" alt="Maker event" className="w-full h-20 object-cover rounded-lg mb-2" />
+                <img src={`${import.meta.env.BASE_URL}event-6.png`} alt="Maker event" className="w-full h-20 object-cover rounded-lg mb-2" />
                 <p className="font-semibold text-xs mb-1">Make...</p>
                 <p className="text-xs text-gray-600">10:00 AM</p>
                 <p className="text-xs text-gray-500">Online</p>

@@ -52,7 +52,7 @@ export function NewsDetailPanel({ onClose }: NewsDetailPanelProps) {
           {/* Featured Image */}
           <div className="mb-6">
             <img
-              src="/post-image.png"
+              src={`${import.meta.env.BASE_URL}post-image.png`}
               alt="Textile innovation showcase"
               className="w-full h-auto object-cover rounded-2xl"
             />
@@ -137,7 +137,7 @@ export function NewsDetailPanel({ onClose }: NewsDetailPanelProps) {
                     </p>
                   </div>
                   <img
-                    src="/news-2.png"
+                    src={`${import.meta.env.BASE_URL}news-2.png`}
                     alt="Textile comparison"
                     className="w-32 h-24 object-cover rounded-xl"
                   />
@@ -209,7 +209,7 @@ export function NewsDetailPanel({ onClose }: NewsDetailPanelProps) {
                 </p>
               </div>
               <img
-                src="/news-1.png"
+                src={`${import.meta.env.BASE_URL}news-1.png`}
                 alt="Validation graphic"
                 className="w-40 h-40 object-cover rounded-xl"
               />

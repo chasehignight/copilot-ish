@@ -47,7 +47,7 @@ function Sidebar({
     <aside className="w-64 h-full bg-white border-r border-gray-200 flex flex-col">
       <div className="p-4 flex items-center gap-3">
         <div className="w-8 h-8 rounded-lg flex items-center justify-center">
-          <img src="/icon.svg" alt="Copilotish" className="w-8 h-8" />
+          <img src={`${import.meta.env.BASE_URL}icon.svg`} alt="Copilotish" className="w-8 h-8" />
         </div>
         <div className="text-sm font-semibold text-gray-900">Copilotish</div>
       </div>

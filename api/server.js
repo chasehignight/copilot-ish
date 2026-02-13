@@ -1,67 +1,25 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import Anthropic from '@anthropic-ai/sdk';
 
 dotenv.config();
 
 const app = express();
 const PORT = 3001;
-const OLLAMA_URL = 'http://localhost:11434';
-const DEFAULT_OLLAMA_MODEL = process.env.OLLAMA_MODEL || 'llama3.1:8b';
-const TIMEOUT_MS = 60000;
+
+// Initialize Anthropic client
+const anthropic = new Anthropic({
+  apiKey: process.env.ANTHROPIC_API_KEY,
+});
 
 app.use(cors());
 app.use(express.json());
 
 /**
- * Call Ollama API with timeout
+ * Format system prompt for better responses
  */
-async function askOllama(prompt) {
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_MS);
-
-  try {
-    const response = await fetch(`${OLLAMA_URL}/api/generate`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: DEFAULT_OLLAMA_MODEL,
-        prompt: prompt,
-        stream: false
-      }),
-      signal: controller.signal
-    });
-
-    clearTimeout(timeoutId);
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`Ollama API error (${response.status}): ${errorText}`);
-    }
-
-    const data = await response.json();
-    return data.response;
-  } catch (error) {
-    clearTimeout(timeoutId);
-
-    if (error.name === 'AbortError') {
-      throw new Error('Request timeout - model took too long to respond');
-    }
-
-    // Check if Ollama server is not running
-    if (error.code === 'ECONNREFUSED' || error.message.includes('fetch failed')) {
-      throw new Error('Ollama server is not running. Start it with: ollama serve');
-    }
-
-    throw error;
-  }
-}
-
-/**
- * Convert conversation messages to a single prompt
- */
-function messagesToPrompt(messages) {
-  const systemPrompt = `You are a helpful assistant. Format ALL responses with emojis, clear structure, and visual hierarchy.
+const SYSTEM_PROMPT = `You are a helpful assistant. Format ALL responses with emojis, clear structure, and visual hierarchy.
 
 CRITICAL RULES - FOLLOW EVERY TIME:
 1. ALWAYS start responses with a relevant emoji
@@ -91,43 +49,12 @@ Key points:
 
 Closing thoughts or next steps here.
 
-EXAMPLES OF PERFECT RESPONSES:
-
-User asks: "What is TypeScript?"
-
-Response:
-🚀 TypeScript is JavaScript with superpowers—it adds static typing to catch errors before your code runs.
-
-**💡 Why TypeScript Matters**
-
-TypeScript helps you write more reliable code by catching bugs during development instead of at runtime. It's like having a safety net that catches mistakes before they reach production.
-
-**📋 Key Features**
-
-- Type checking catches errors early
-- Better IDE support with autocomplete
-- Easier refactoring and maintenance
-- Scales well for large codebases
-
-**✨ Getting Started**
-
-You can start using TypeScript today by installing it via npm and adding a tsconfig.json file to your project. The learning curve is gentle since any valid JavaScript is also valid TypeScript.
-
 REMEMBER:
 - Use emojis liberally 🎨
 - Keep formatting clean and scannable 📖
 - Break up long text into digestible chunks 🍰
 - Make it feel friendly and approachable 😊
-
 `;
-
-  const conversation = messages.map(msg => {
-    const prefix = msg.role === 'user' ? 'User: ' : 'Assistant: ';
-    return prefix + msg.content;
-  }).join('\n\n');
-
-  return systemPrompt + conversation + '\n\nAssistant: ';
-}
 
 // Chat endpoint
 app.post('/api/chat', async (req, res) => {
@@ -138,65 +65,51 @@ app.post('/api/chat', async (req, res) => {
       return res.status(400).json({ error: 'Messages array required' });
     }
 
-    // Convert conversation to prompt
-    const prompt = messagesToPrompt(messages);
+    // Call Claude API
+    const response = await anthropic.messages.create({
+      model: 'claude-3-haiku-20240307',
+      max_tokens: 1024,
+      system: SYSTEM_PROMPT,
+      messages: messages,
+    });
 
-    // Call Ollama
-    const responseText = await askOllama(prompt);
+    // Extract the text content from Claude's response
+    const content = response.content[0].text;
 
     res.json({
-      content: responseText,
-      model: DEFAULT_OLLAMA_MODEL,
-      provider: 'ollama'
+      content: content,
+      model: response.model,
+      provider: 'anthropic',
     });
   } catch (error) {
-    console.error('Error calling Ollama:', error);
+    console.error('Error calling Claude API:', error);
 
     // Return user-friendly error message
-    const friendlyMessage = error.message.includes('ollama serve')
-      ? error.message
-      : `Local model error: ${error.message}`;
+    const errorMessage = error.message || 'An error occurred';
 
-    res.json({
-      content: friendlyMessage,
+    res.status(500).json({
+      content: `❌ **Error**\n\nSorry, I encountered an error: ${errorMessage}`,
       error: true,
-      model: DEFAULT_OLLAMA_MODEL
+      model: 'claude-3-haiku-20240307',
     });
   }
 });
 
 // Health check
 app.get('/api/health', async (req, res) => {
-  let ollamaRunning = false;
-  let availableModels = [];
-
-  try {
-    const response = await fetch(`${OLLAMA_URL}/api/tags`, {
-      signal: AbortSignal.timeout(5000)
-    });
-
-    if (response.ok) {
-      const data = await response.json();
-      ollamaRunning = true;
-      availableModels = data.models?.map(m => m.name) || [];
-    }
-  } catch (error) {
-    // Ollama not running
-  }
+  const hasApiKey = !!process.env.ANTHROPIC_API_KEY;
 
   res.json({
     status: 'ok',
     service: 'copilot-chat-api',
-    provider: 'ollama',
-    ollamaRunning,
-    model: DEFAULT_OLLAMA_MODEL,
-    availableModels
+    provider: 'anthropic',
+    model: 'claude-3-haiku-20240307',
+    apiKeyConfigured: hasApiKey,
   });
 });
 
 app.listen(PORT, () => {
   console.log(`🚀 Chat API running on http://localhost:${PORT}`);
-  console.log(`🤖 Using Ollama model: ${DEFAULT_OLLAMA_MODEL}`);
-  console.log(`📡 Ollama endpoint: ${OLLAMA_URL}`);
-  console.log(`💡 Make sure Ollama is running: ollama serve`);
+  console.log(`🤖 Using Claude 3 Haiku`);
+  console.log(`🔑 API Key configured: ${process.env.ANTHROPIC_API_KEY ? 'Yes ✓' : 'No ✗'}`);
 });

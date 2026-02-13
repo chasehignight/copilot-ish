@@ -13,7 +13,15 @@ const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
 });
 
-app.use(cors());
+// Configure CORS to allow GitHub Pages
+app.use(cors({
+  origin: [
+    'http://localhost:5173',
+    'http://localhost:5174',
+    'https://chasehignight.github.io'
+  ],
+  credentials: true
+}));
 app.use(express.json());
 
 /**

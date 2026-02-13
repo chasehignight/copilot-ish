@@ -5,11 +5,12 @@ import { saveOrder, getLastOrder, getRecommendedItems, getModifierPreferences } 
 
 interface WorkCafeWidgetProps {
   onClose: () => void;
+  onOrderPlaced?: (order: Order) => void;
 }
 
 type View = 'menu' | 'item-detail' | 'cart' | 'order-status';
 
-export function WorkCafeWidget({ onClose }: WorkCafeWidgetProps) {
+export function WorkCafeWidget({ onClose, onOrderPlaced }: WorkCafeWidgetProps) {
   const [view, setView] = useState<View>('menu');
   const [selectedCategory, setSelectedCategory] = useState<Category>('breakfast');
   const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
@@ -136,11 +137,14 @@ export function WorkCafeWidget({ onClose }: WorkCafeWidgetProps) {
     setCart([]);
     setView('order-status');
 
+    // Notify parent component
+    onOrderPlaced?.(order);
+
     console.log(`Placed Work Cafe order: ${order.items.length} items, total $${order.total.toFixed(2)}`);
 
-    // Mock status progression
-    setTimeout(() => setOrderStatus('preparing'), 3000);
-    setTimeout(() => setOrderStatus('ready'), 8000);
+    // Mock status progression (slowed down)
+    setTimeout(() => setOrderStatus('preparing'), 6000);  // 6 seconds
+    setTimeout(() => setOrderStatus('ready'), 15000);     // 15 seconds
   };
 
   // Reorder last order

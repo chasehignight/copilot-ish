@@ -1,6 +1,8 @@
 import React, { useState, useRef, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
 import { WorkCafeWidget } from "./widgets/workCafe/WorkCafeWidget";
+import { MiniOrderTracker } from "./components/MiniOrderTracker";
+import type { Order } from "./widgets/workCafe/types";
 import { CalendarModal } from "./components/CalendarModal";
 import { SharePointSummary } from "./components/SharePointSummary";
 import { NewsDetailPanel } from "./components/NewsDetailPanel";
@@ -224,11 +226,11 @@ function Composer({ onSend, disabled }: { onSend: (message: string) => void; dis
 
   return (
     <div className="w-full">
-      <div className="bg-white border border-gray-300 shadow-lg p-4" style={{ borderRadius: '28px' }}>
-        <div className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-3">Message Copilotish</div>
-        <div className="flex items-center gap-3">
+      <div className="bg-white border border-gray-300 shadow-lg p-3 sm:p-4" style={{ borderRadius: '28px' }}>
+        <div className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2 sm:mb-3">Message Copilotish</div>
+        <div className="flex items-center gap-2 sm:gap-3">
           <button
-            className="w-9 h-9 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-600 hover:text-gray-800 transition-all"
+            className="hidden sm:flex w-9 h-9 rounded-lg bg-gray-100 hover:bg-gray-200 items-center justify-center text-gray-600 hover:text-gray-800 transition-all"
             title="Add attachment"
           >
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -247,7 +249,7 @@ function Composer({ onSend, disabled }: { onSend: (message: string) => void; dis
           />
 
           <button
-            className="w-9 h-9 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-600 hover:text-gray-800 transition-all"
+            className="hidden sm:flex w-9 h-9 rounded-lg bg-gray-100 hover:bg-gray-200 items-center justify-center text-gray-600 hover:text-gray-800 transition-all"
             title="Voice input"
           >
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -300,6 +302,8 @@ export default function App() {
   const [showCalendarModal, setShowCalendarModal] = useState(false);
   const [isDetailPanelOpen, setIsDetailPanelOpen] = useState(false);
   const [isDetailPanelClosing, setIsDetailPanelClosing] = useState(false);
+  const [activeOrder, setActiveOrder] = useState<Order | null>(null);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
@@ -343,6 +347,24 @@ export default function App() {
       return () => scrollElement.removeEventListener('scroll', handleScroll);
     }
   }, [currentMessages]);
+
+  // Handle responsive sidebar
+  useEffect(() => {
+    const handleResize = () => {
+      // Auto-close sidebar on tablet and mobile (< 1024px)
+      if (window.innerWidth < 1024) {
+        setSidebarOpen(false);
+      } else {
+        setSidebarOpen(true);
+      }
+    };
+
+    // Set initial state
+    handleResize();
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   // Generate chat title from first message
   const generateChatTitle = (firstMessage: string): string => {
@@ -471,24 +493,55 @@ export default function App() {
 
   return (
     <>
-    <div className="h-full flex">
-      <Sidebar
-        chats={chats}
-        currentChatId={currentChatId}
-        onNewChat={createNewChat}
-        onSelectChat={switchToChat}
-      />
+    <div className="h-full flex relative">
+      {/* Sidebar */}
+      <div className={`${sidebarOpen ? 'block' : 'hidden'} lg:block absolute lg:relative inset-y-0 left-0 z-40 lg:z-0`}>
+        <Sidebar
+          chats={chats}
+          currentChatId={currentChatId}
+          onNewChat={createNewChat}
+          onSelectChat={switchToChat}
+        />
+      </div>
+
+      {/* Overlay for mobile */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-30 lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
 
       <main className={`flex-1 h-full transition-all duration-300 ${isDetailPanelOpen ? 'mr-0' : ''}`}>
         <div className="h-full flex flex-col relative">
           {/* Top bar */}
-          <div className="h-16 px-8 flex items-center justify-between border-b border-gray-200 bg-white">
+          <div id="header" className="h-16 px-4 md:px-8 flex items-center justify-between border-b border-gray-200 bg-white">
             <div className="flex items-center gap-2">
-              <Pill label="Work" active />
-              <Pill label="Web" />
+              {/* Hamburger menu for mobile */}
+              <button
+                onClick={() => setSidebarOpen(!sidebarOpen)}
+                className="lg:hidden w-9 h-9 rounded-lg hover:bg-gray-100 transition-all flex items-center justify-center"
+              >
+                <svg className="w-6 h-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+              </button>
+
+              <div className="hidden sm:flex items-center gap-2">
+                <Pill label="Work" active />
+                <Pill label="Web" />
+              </div>
             </div>
-            <div className="flex items-center gap-2">
-              <button className="px-3 py-1.5 rounded-lg bg-white border border-gray-300 text-sm text-gray-700 hover:bg-gray-50 transition-all flex items-center gap-1.5">
+
+            {/* Mini Order Tracker */}
+            {activeOrder && (
+              <div className="hidden md:flex flex-1 justify-center">
+                <MiniOrderTracker order={activeOrder} />
+              </div>
+            )}
+
+            <div className="flex items-center gap-1 sm:gap-2">
+              <button className="hidden sm:flex px-3 py-1.5 rounded-lg bg-white border border-gray-300 text-sm text-gray-700 hover:bg-gray-50 transition-all items-center gap-1.5">
                 Auto
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -513,18 +566,20 @@ export default function App() {
             {currentMessages.length === 0 ? (
               <div className="min-h-full flex flex-col items-center">
                 <div className="flex-1 flex flex-col items-center justify-center">
-                  <div className="chat p-[8%] pb-[4%]">
+                  <div className="chat px-4 sm:px-[8%] py-[4%]">
                   <div className="text-center">
-                    <h1 className="text-4xl font-bold text-gray-900 leading-tight">
+                    <h1 className="text-2xl sm:text-4xl font-bold text-gray-900 leading-tight">
                       Hi there, try asking, <span className="text-indigo-600">'what can you do?'</span>
                     </h1>
                   </div>
 
-                  <div className="mt-12 w-full max-w-6xl px-6">
+                  {/* Composer first */}
+                  <div className="mt-6 lg:mt-12 w-full max-w-6xl px-6">
                     <Composer onSend={sendMessage} disabled={loading} />
                   </div>
 
-                  <div className="mt-10 w-full max-w-6xl px-6 grid grid-cols-3 gap-4">
+                  {/* Prompt cards below composer on all screen sizes */}
+                  <div className="mt-6 lg:mt-10 w-full max-w-6xl px-6 grid grid-cols-1 sm:grid-cols-3 gap-4">
                     {quickPrompts.map((prompt) => (
                       <PromptCard
                         key={prompt.title}
@@ -535,7 +590,7 @@ export default function App() {
                     ))}
                   </div>
 
-                  <button className="mt-8 text-sm font-medium text-indigo-600 hover:text-indigo-700 transition-colors flex items-center gap-2">
+                  <button className="mt-6 lg:mt-8 text-sm font-medium text-indigo-600 hover:text-indigo-700 transition-colors flex items-center gap-2">
                     <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
                     </svg>
@@ -872,7 +927,7 @@ export default function App() {
                 </div>
               </div>
             ) : (
-              <div className="max-w-4xl mx-auto py-8 px-6 pb-32">
+              <div className="max-w-4xl mx-auto py-4 sm:py-8 px-4 sm:px-6 pb-32">
                 {currentMessages.map((msg, idx) => (
                   <MessageBubble
                     key={idx}
@@ -909,7 +964,7 @@ export default function App() {
           {/* Composer fixed at bottom of viewport */}
           {currentMessages.length > 0 && (
             <div className="absolute bottom-0 left-0 right-0 pointer-events-none">
-              <div className="max-w-4xl mx-auto py-6 px-6 pointer-events-auto">
+              <div className="max-w-4xl mx-auto py-4 sm:py-6 px-4 sm:px-6 pointer-events-auto">
                 <Composer onSend={sendMessage} disabled={loading} />
               </div>
             </div>
@@ -919,8 +974,8 @@ export default function App() {
 
       {/* News Detail Panel - Slides from right with floating effect */}
       {(isDetailPanelOpen || isDetailPanelClosing) && (
-        <aside className={`w-full max-w-4xl h-full bg-gray-50 p-3 ${isDetailPanelClosing ? 'animate-slide-out' : 'animate-slide-in'}`}>
-          <div className="h-full bg-white rounded-3xl shadow-[0_20px_60px_rgba(0,0,0,0.15)] overflow-hidden">
+        <aside className={`fixed lg:relative inset-0 lg:inset-auto w-full lg:max-w-4xl h-full bg-gray-50 p-0 lg:p-3 z-50 lg:z-0 ${isDetailPanelClosing ? 'animate-slide-out' : 'animate-slide-in'}`}>
+          <div className="h-full bg-white lg:rounded-3xl shadow-[0_20px_60px_rgba(0,0,0,0.15)] overflow-hidden">
             <NewsDetailPanel onClose={handleDetailPanelClose} />
           </div>
         </aside>
@@ -929,7 +984,14 @@ export default function App() {
 
     {/* Work Cafe Modal */}
     {showWorkCafeModal && (
-      <WorkCafeWidget onClose={() => setShowWorkCafeModal(false)} />
+      <WorkCafeWidget
+        onClose={() => setShowWorkCafeModal(false)}
+        onOrderPlaced={(order) => {
+          setActiveOrder(order);
+          // Auto-clear after order is ready + 5 seconds
+          setTimeout(() => setActiveOrder(null), 20000); // 15s for ready + 5s display
+        }}
+      />
     )}
 
     {/* Calendar Modal */}
